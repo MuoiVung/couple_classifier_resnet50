@@ -15,7 +15,7 @@ def download_images():
         print(f"Downloading images for: {label}")
         downloader.download(
             query,
-            limit=500,
+            limit=100,
             output_dir=output_dir,
             adult_filter_off=True,
             force_replace=False,

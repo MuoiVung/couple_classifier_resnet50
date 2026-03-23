@@ -3,7 +3,7 @@
 An end-to-end deep learning application to classify whether an image contains a "Couple" or a "Single" person. This project uses a pre-trained **ResNet50** from the `timm` (PyTorch Image Models) library.
 
 ## 🚀 Features
-- **Automated Data Collection**: Scraping 1,000 images from Bing.
+- **Automated Data Collection**: Scraping 200 images from Bing.
 - **Data Augmentation**: Using PyTorch `Transforms` (Rotation, Flip, Color Jitter) to enhance dataset diversity.
 - **Deep Learning Model**: ResNet50 architecture fine-tuned for binary classification.
 - **Web UI**: User-friendly interface built with **Gradio** for real-time predictions.
@@ -24,7 +24,7 @@ An end-to-end deep learning application to classify whether an image contains a 
 ## 📈 How to Use
 
 ### 1. Collect Data
-Download images for training (500 couples, 500 singles):
+Download images for training (100 couples, 100 singles):
 ```bash
 python download_data.py
 ```
