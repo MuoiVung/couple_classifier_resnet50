@@ -10,8 +10,9 @@ An end-to-end deep learning application to classify whether an image contains a 
 
 ## 🛠️ Installation
 
-1. **Activate Virtual Environment**:
+1. **Create and Activate Virtual Environment**:
     ```bash
+    python3 -m venv venv
     source venv/bin/activate
     ```
 
