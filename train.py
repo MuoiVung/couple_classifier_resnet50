@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils_data import DataLoader
+from torch.utils.data import DataLoader
 from dataset import create_dataloaders
 from model import create_couple_model
 from tqdm import tqdm
@@ -18,11 +18,14 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
     model = create_couple_model(num_classes=len(class_names))
     model.to(device)
     
-    # Loss and Optimizer
+    # Loss, Optimizer and Scheduler
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2, verbose=True)
     
     best_val_acc = 0.0
+    early_stop_patience = 5
+    early_stop_counter = 0
     
     # Training Loop
     for epoch in range(epochs):
@@ -57,7 +60,7 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
         val_correct = 0
         val_total = 0
         
-        with torch.no_valid_grad():
+        with torch.no_grad():
             val_loop = tqdm(val_loader, desc=f"Epoch {epoch+1}/{epochs} [Val]")
             for inputs, labels in val_loop:
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -76,11 +79,22 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
         
         print(f"Epoch {epoch+1}: Train Loss: {epoch_loss:.4f}, Acc: {epoch_acc:.2f}%, Val Loss: {val_epoch_loss:.4f}, Acc: {val_epoch_acc:.2f}%")
         
+        # Step the scheduler
+        scheduler.step(val_epoch_acc)
+        
         if val_epoch_acc > best_val_acc:
             best_val_acc = val_epoch_acc
             os.makedirs('models', exist_ok=True)
             torch.save(model.state_dict(), 'models/best_model.pth')
             print(f"Saving best model with Acc: {best_val_acc:.2f}%")
+            early_stop_counter = 0 # Reset counter
+        else:
+            early_stop_counter += 1
+            print(f"EarlyStopping counter: {early_stop_counter} out of {early_stop_patience}")
+            
+        if early_stop_counter >= early_stop_patience:
+            print("Early stopping triggered! Training stopped.")
+            break
 
 if __name__ == "__main__":
     import argparse

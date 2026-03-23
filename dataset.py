@@ -1,14 +1,20 @@
 import os
-from torch.utils_data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, datasets
 from PIL import Image
 
 def get_transforms(img_size=224):
     train_transforms = transforms.Compose([
-        transforms.Resize((img_size, img_size)),
+        # Randomly crop and resize to img_size
+        transforms.RandomResizedCrop(img_size, scale=(0.8, 1.0)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(15),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+        # Gentle rotation and translation
+        transforms.RandomRotation(20),
+        transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), shear=10),
+        # Slightly stronger color jitter
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        # Add basic grayscale conversion for color invariance (optional but helpful)
+        transforms.RandomGrayscale(p=0.1),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
