@@ -23,7 +23,17 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2)
     
+    # Persistently track best accuracy across runs
+    best_acc_path = 'models/best_acc.txt'
     best_val_acc = 0.0
+    if os.path.exists(best_acc_path):
+        try:
+            with open(best_acc_path, 'r') as f:
+                best_val_acc = float(f.read().strip())
+            print(f"Loaded previous best accuracy: {best_val_acc:.2f}%")
+        except Exception as e:
+            print(f"Could not load previous best accuracy: {e}")
+
     early_stop_patience = 5
     early_stop_counter = 0
     
@@ -86,7 +96,9 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
             best_val_acc = val_epoch_acc
             os.makedirs('models', exist_ok=True)
             torch.save(model.state_dict(), 'models/best_model.pth')
-            print(f"Saving best model with Acc: {best_val_acc:.2f}%")
+            with open(best_acc_path, 'w') as f:
+                f.write(f"{best_val_acc:.4f}")
+            print(f"New global best model saved! Acc: {best_val_acc:.2f}%")
             early_stop_counter = 0 # Reset counter
         else:
             early_stop_counter += 1
