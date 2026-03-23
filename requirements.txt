@@ -1,0 +1,10 @@
+torch
+torchvision
+timm
+gradio
+bing-image-downloader
+Pillow
+scikit-learn
+numpy
+pandas
+matplotlib
