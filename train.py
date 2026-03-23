@@ -21,7 +21,7 @@ def train_model(data_dir, batch_size=32, epochs=20, lr=1e-4):
     # Loss, Optimizer and Scheduler
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2)
     
     best_val_acc = 0.0
     early_stop_patience = 5
