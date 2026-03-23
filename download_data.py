@@ -47,14 +47,21 @@ def download_images():
         finally:
             # Merge the new folder into label_folder even if interrupted
             if os.path.exists(query_folder):
-                new_files = os.listdir(query_folder)
+                new_files = sorted(os.listdir(query_folder))  # Sorted for predictable indexing
                 for idx, file in enumerate(new_files):
                     source = os.path.join(query_folder, file)
-                    # Ensure unique filename to prevent collision
-                    new_filename = f"image_new_{current_count + idx}_{file}"
-                    destination = os.path.join(label_folder, new_filename)
-                    
                     if os.path.isfile(source):
+                        ext = os.path.splitext(file)[1]
+                        new_filename = f"Image_{current_count + idx + 1}{ext}"
+                        destination = os.path.join(label_folder, new_filename)
+                        
+                        # Ensure filename doesn't collide
+                        counter = 1
+                        while os.path.exists(destination):
+                            new_filename = f"Image_{current_count + idx + 1}_{counter}{ext}"
+                            destination = os.path.join(label_folder, new_filename)
+                            counter += 1
+                        
                         os.rename(source, destination)
                 
                 # Remove the empty query folder
