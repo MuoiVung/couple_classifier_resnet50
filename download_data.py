@@ -31,31 +31,34 @@ def download_images():
         needed = target_count - current_count
         print(f"Downloading {needed} more images for: {label} (Current: {current_count})")
         
-        downloader.download(
-            query,
-            limit=needed,
-            output_dir=output_dir,
-            adult_filter_off=True,
-            force_replace=False,
-            timeout=60,
-            verbose=True
-        )
-        
-        # Merge the new folder into label_folder
         query_folder = os.path.join(output_dir, query)
-        if os.path.exists(query_folder):
-            new_files = os.listdir(query_folder)
-            for idx, file in enumerate(new_files):
-                source = os.path.join(query_folder, file)
-                # Ensure unique filename to prevent collision
-                new_filename = f"image_new_{current_count + idx}_{file}"
-                destination = os.path.join(label_folder, new_filename)
+        try:
+            downloader.download(
+                query,
+                limit=needed,
+                output_dir=output_dir,
+                adult_filter_off=True,
+                force_replace=False,
+                timeout=60,
+                verbose=True
+            )
+        except KeyboardInterrupt:
+            print("\nDownload interrupted by user.")
+        finally:
+            # Merge the new folder into label_folder even if interrupted
+            if os.path.exists(query_folder):
+                new_files = os.listdir(query_folder)
+                for idx, file in enumerate(new_files):
+                    source = os.path.join(query_folder, file)
+                    # Ensure unique filename to prevent collision
+                    new_filename = f"image_new_{current_count + idx}_{file}"
+                    destination = os.path.join(label_folder, new_filename)
+                    
+                    if os.path.isfile(source):
+                        os.rename(source, destination)
                 
-                if os.path.isfile(source):
-                    os.rename(source, destination)
-            
-            # Remove the empty query folder
-            shutil.rmtree(query_folder)
+                # Remove the empty query folder
+                shutil.rmtree(query_folder)
 
 if __name__ == "__main__":
     download_images()
